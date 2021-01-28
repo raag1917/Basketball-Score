@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Basketball Score</string>
+    <string name="menos_uno">-1</string>
+    <string name="mas_uno">+1</string>
+    <string name="mas_dos">+2</string>
+    <string name="local">Local</string>
+    <string name="visitante">Visitante</string>
+    <string name="_0">0</string>
+    <string name="reset">Que comience el juego</string>
+    <string name="puntaje_local">El puntaje actual del local es 0</string>
+    <string name="local_vs_visitante">Local Vs Visitante</string>
+    <string name="separador">-</string>
+    <string name="esperando_resultado">Esperando resultado</string>
+</resources>
