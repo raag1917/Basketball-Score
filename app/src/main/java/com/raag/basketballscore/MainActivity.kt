@@ -3,107 +3,72 @@ package com.raag.basketballscore
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import com.raag.basketballscore.ResultActivity.Companion.KEY_RESULT_LOCAL
+import com.raag.basketballscore.ResultActivity.Companion.KEY_RESULT_VISITOR
 import com.raag.basketballscore.databinding.ActivityMainBinding
 import com.raag.basketballscore.model.Score
+import com.raag.basketballscore.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity() {
-    companion object{
-        const val KEY_RESULT = "result"
-    }
     private lateinit var binding: ActivityMainBinding
-    private var resultLocal: Int = 0
-    private var resultVisit: Int = 0
-    private var masUno: Int = 1
-    private var masDos: Int = 2
-    private var menosUno: Int = -1
+
+    private lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
+        viewModel.localScore.observe(this, Observer {
+            binding.scoreLocal.text = it.toString()
+        })
+
+        viewModel.visitScore.observe(this, Observer {
+            binding.scoreVisitante.text = it.toString()
+        })
+
         binding.reset.setOnClickListener {
-            resetScore()
+            viewModel.resetScore()
+            Snackbar.make(binding.root, getString(R.string.reset), Snackbar.LENGTH_SHORT).show()
         }
         binding.menosUnoLocal.setOnClickListener {
-            menosUnoLocal()
+            viewModel.quitarPointLocal()
         }
 
         binding.masUnoLocal.setOnClickListener {
-            masUnoLocal()
+            viewModel.aumentarPoint(1, true)
         }
 
         binding.masDosLocal.setOnClickListener {
-            masDosLocal()
+            viewModel.aumentarPoint(2, true)
         }
 
         binding.menosUnoVisit.setOnClickListener {
-            menosUnoVisit()
+            viewModel.quitarPointVisit()
         }
 
         binding.masUnoVisit.setOnClickListener {
-            masUnoVisit()
+            viewModel.aumentarPoint(1, false)
         }
 
         binding.masDosVisit.setOnClickListener {
-            masDosVisit()
+            viewModel.aumentarPoint(2, false)
         }
 
         binding.result.setOnClickListener {
-            val finalScore = Score(resultLocal, resultVisit)
-            seeResult(finalScore)
+            seeResult()
         }
     }
-
-    private fun masDosLocal() {
-        resultLocal += masDos
-        binding.scoreLocal.text = resultLocal.toString()
-    }
-
-    private fun masUnoLocal() {
-        resultLocal += masUno
-        binding.scoreLocal.text = resultLocal.toString()
-    }
-
-    private fun menosUnoLocal() {
-        if(resultLocal>0){
-            resultLocal += menosUno
-            binding.scoreLocal.text = resultLocal.toString()
-        }else{
-            Snackbar.make(binding.root, getString(R.string.puntaje_local), Snackbar.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun masDosVisit() {
-        resultVisit += masDos
-        binding.scoreVisitante.text = resultVisit.toString()
-    }
-
-    private fun masUnoVisit() {
-        resultVisit += masUno
-        binding.scoreVisitante.text = resultVisit.toString()
-    }
-
-    private fun menosUnoVisit() {
-        if(resultVisit>0){
-            resultVisit += menosUno
-            binding.scoreVisitante.text = resultVisit.toString()
-        }else{
-            Snackbar.make(binding.root, getString(R.string.puntaje_local), Snackbar.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun resetScore() {
-        resultLocal = 0
-        binding.scoreLocal.text = resultLocal.toString()
-        resultVisit = 0
-        binding.scoreVisitante.text = resultVisit.toString()
-        Snackbar.make(binding.root, getString(R.string.reset), Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun seeResult(result: Score) {
+    private fun seeResult() {
         val i = Intent(this, ResultActivity::class.java)
-        i.putExtra(KEY_RESULT, result)
+        i.putExtra(KEY_RESULT_LOCAL, viewModel.localScore.value)
+        i.putExtra(KEY_RESULT_VISITOR, viewModel.visitScore.value)
         startActivity(i)
 
     }
